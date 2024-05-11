@@ -5,6 +5,7 @@ from bs4 import Comment
 import tiktoken
 import html2text
 from translator.models import TranslatorEngine
+from markdownify import markdownify
 
 def clean_content(content: str) -> str:
     """convert html to markdown without useless tags"""
@@ -91,15 +92,14 @@ def chunk_on_delimiter(input_string: str,
     combined_chunks = [f"{chunk}{delimiter}" for chunk in combined_chunks]
     return combined_chunks
 
-'''
 def content_split(content: str) -> dict:
-    """Split content into chunks, separated by two newlines."""
+    """Split content into chunks, separated by one or more newlines."""
     # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
     #encoding = tiktoken.get_encoding("cl100k_base")
     encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
     try:
-        content = clean_content(content)
-        chunks = content.split('\n')
+        markdown = markdownify(content, heading_style="ATX")
+        chunks = re.split("\n+", markdown)
         tokens = []
         characters = []
         for chunk in chunks:
@@ -112,8 +112,10 @@ def content_split(content: str) -> dict:
         characters = [len(content)]
     return {'chunks': chunks, 'tokens': tokens, 'characters': characters}
 
-def group_chunks(split_chunks: dict, min_size: int, max_size: int,
-                 group_by: str) -> list:  # group_by: 'tokens' or 'characters'
+
+def group_chunks(
+        split_chunks: dict, min_size: int, max_size: int, group_by: str
+) -> list:  # group_by: 'tokens' or 'characters'
     """Group very short chunks, to form approximately page long chunks."""
     chunks = split_chunks['chunks']
     values = split_chunks[group_by]
@@ -122,22 +124,18 @@ def group_chunks(split_chunks: dict, min_size: int, max_size: int,
     current_value = 0
     try:
         for chunk, value in zip(chunks, values):
-            if value > max_size:
-                # Use regex to split the chunk at symbol boundaries
-                split_points = re.finditer(r'[\s.,;!?]+', chunk)
-                last_split_end = 0
-                for match in split_points:
-                    if match.start() - last_split_end >= max_size:
-                        grouped_chunks.append(chunk[last_split_end:match.start()] + '\n')
-                        last_split_end = match.start()
-                # Append the remaining part of the chunk
-                if last_split_end < len(chunk):
-                    grouped_chunks.append(chunk[last_split_end:] + '\n')
-            else:
-                grouped_chunks.append(current_chunk)
+            if (current_value + value) > (max_size / 3):
+                # If adding the current chunk exceeds 1/2 of max_size, add the current_chunk to grouped_chunks
+                grouped_chunks.append(current_chunk.strip())
+                # Start a new current_chunk with the current chunk
                 current_chunk = chunk
                 current_value = value
+            else:
+                # If adding the current chunk does not exceed 1/2 of max_size, add it to current_chunk
+                current_chunk += "\n\n" + chunk
+                current_value += value
 
+        # Add the last current_chunk to grouped_chunks
         if current_chunk:
             grouped_chunks.append(current_chunk)
     except Exception as e:
@@ -145,7 +143,6 @@ def group_chunks(split_chunks: dict, min_size: int, max_size: int,
         grouped_chunks = chunks
 
     return grouped_chunks
-'''
 
 def should_skip(element):
     skip_tags = ['pre', 'code', 'script', 'style', 'head', 'title', 'meta', 'abbr', 'address', 'samp', 'kbd', 'bdo', 'cite', 'dfn']

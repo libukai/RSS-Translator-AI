@@ -227,18 +227,20 @@ def translate_feed(
     total_tokens = 0
     translated_characters = 0
     need_cache_objs = {}
-    
+
     try:
         for entry in translated_feed.entries[:max_posts]:
             title = entry["title"]
-        
+
             # Translate title
             if translate_title:
                 cached = Translated_Content.is_translated(title, target_language)  # check cache db
                 translated_text = ''
                 if not cached:
                     results = translate_engine.translate(title, target_language=target_language, text_type="title")
-                    translated_text = results.get("text", title)
+                    paragraphs = re.split('\n', results.get("text", title).strip())[0]
+                    translated_text = re.sub("[.,，。]$", "", paragraphs)
+
                     total_tokens += results.get("tokens", 0)
                     translated_characters += len(title)
 
@@ -284,10 +286,10 @@ def translate_feed(
                 content = original_content[0].value if original_content else entry.get('summary')
 
                 if content:
-                    translated_summary, tokens, characters, need_cache = content_translate(content,
-                                                                                           target_language,
-                                                                                           translate_engine,
-                                                                                           quality)
+
+                    # NOTE: 调整翻译用函数，调整为 AI 翻译版本
+                    translated_summary, tokens, characters, need_cache = chunk_translate(content, target_language,
+                                                                                         translate_engine)
                     total_tokens += tokens
                     translated_characters += characters
 
@@ -295,7 +297,7 @@ def translate_feed(
 
                     text = text_handler.set_translation_display(
                         original=content,
-                        translation=translated_summary,
+                        translation=mistune.html(translated_summary),
                         translation_display=translation_display,
                         seprator='<br />---------------<br />'
                     )
@@ -360,7 +362,7 @@ def content_translate(original_content: str, target_language: str, engine: Trans
     try:
         if quality:
             soup = BeautifulSoup(text_handler.unwrap_tags(soup), 'lxml')
-            
+
         for element in soup.find_all(string=True):
             if text_handler.should_skip(element):
                 continue
@@ -466,9 +468,13 @@ def content_summarize(original_content: str,
     return final_summary, total_tokens, need_cache_objs
 
 
-'''
-def chunk_translate(original_content: str, target_language: str, engine: TranslatorEngine):
-    logging.info("Call chunk_translate: %s(%s items)", target_language, len(original_content))
+def chunk_translate(
+        original_content: str, target_language: str, engine: TranslatorEngine
+):
+    logging.info(
+        "Call chunk_translate: %s(%s items)", target_language, len(original_content)
+    )
+    # NOTE: 在 text_handler 中调整为 AI 翻译版本
     split_chunks: dict = text_handler.content_split(original_content)
     grouped_chunks: list = text_handler.group_chunks(split_chunks=split_chunks, min_size=engine.min_size(),
                                                       max_size=engine.max_size(),
@@ -497,9 +503,13 @@ def chunk_translate(original_content: str, target_language: str, engine: Transla
                     translated_language=target_language,
                     translated_content=results["text"],
                     tokens=results.get("tokens", 0),
-                    characters=results.get("characters", 0),
+                    characters=total_characters,
                 )
         else:
             translated_content.append(cached["text"])
-    return "".join(translated_content), total_tokens, total_characters, need_cache_objs
-'''
+    return (
+        "\n\n".join(translated_content),
+        total_tokens,
+        total_characters,
+        need_cache_objs,
+    )
