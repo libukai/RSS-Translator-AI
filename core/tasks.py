@@ -283,7 +283,7 @@ def translate_feed(
                 #logging.info("Start Translate Content")
                 # original_description = entry.get('summary', None)  # summary, description
                 original_content = entry.get('content')
-                content = original_content[0].value if original_content else entry.get('summary')
+                content = original_content[0].get('value') if original_content else entry.get('summary')
 
                 if content:
 
@@ -449,7 +449,7 @@ def content_summarize(original_content: str,
             # Compile final summary from partial summaries
             final_summary = '<br/>'.join(accumulated_summaries)
 
-            hash64 = cityhash.CityHash64(f"Summary_{original_content}")
+            hash64 = cityhash.CityHash64(f"Summary_{original_content}{target_language}")
             logging.info("[Summary] Will cache:%s", final_summary)
             need_cache_objs[hash64] = Translated_Content(
                 hash=hash64.to_bytes(8, byteorder='little'),
