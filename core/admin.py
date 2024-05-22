@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy  as _
 from .models import O_Feed, T_Feed
 #from taggit.models import Tag
@@ -100,7 +101,8 @@ def translator_add_view(request):
     if request.method == 'POST':
         translator_name = request.POST.get('translator_name','/')
         # redirect to example.com/translator/translator_name/add
-        return redirect(f"/translator/{translator_name}/add")
+        target = f"/translator/{translator_name}/add"
+        return redirect(target) if url_has_allowed_host_and_scheme(target, allowed_hosts=None) else redirect('/')
     else:
         models = get_all_app_models('translator')
         translator_list = []
@@ -189,7 +191,7 @@ class O_FeedForm(forms.ModelForm):
 
     class Meta:
         model = O_Feed
-        fields = ['feed_url', 'update_frequency', 'max_posts', 'translator', 'translation_display', 'summary_engine', 'summary_detail', 'additional_prompt', 'fetch_article', 'quality', 'name', 'tags', ]
+        fields = ['feed_url', 'update_frequency', 'max_posts', 'translator', 'translation_display', 'summary_engine', 'summary_detail', 'additional_prompt', 'fetch_article', 'quality', 'name', 'category', ]
 
     # 重写save方法，以处理自定义字段的数据
     def save(self, commit=True):
@@ -216,9 +218,9 @@ class O_FeedAdmin(admin.ModelAdmin, CustomModelActions):
     form = O_FeedForm
     inlines = [T_FeedInline]
     list_display = ["name", "is_valid", "show_feed_url", "translated_language", "translator", "size_in_kb",
-                    "update_frequency", "last_updated", "last_pull", "tag_list"]
-    search_fields = ["name", "feed_url", "tags__name"]
-    list_filter = ["valid","tags"]
+                    "update_frequency", "last_updated", "last_pull", "category"]
+    search_fields = ["name", "feed_url", "category__name"]
+    list_filter = ["valid","category"]
     actions = ['o_feed_force_update', 'o_feed_export_as_opml', 'o_feed_batch_modify']
 
 
@@ -264,11 +266,11 @@ class O_FeedAdmin(admin.ModelAdmin, CustomModelActions):
         return ", ".join(t_feed.language for t_feed in obj.t_feed_set.all())
     translated_language.short_description = _('Translated Language')
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('tags')
+    # def get_queryset(self, request):
+    #     return super().get_queryset(request).prefetch_related('tags')
 
-    def tag_list(self, obj):
-        return ", ".join(o.name for o in obj.tags.all())
+    # def tag_list(self, obj):
+    #     return ", ".join(o.name for o in obj.tags.all())
     
     def size_in_kb(self, obj):
         return int(obj.size / 1024)
@@ -317,7 +319,7 @@ class O_FeedAdmin(admin.ModelAdmin, CustomModelActions):
                 'additional_prompt': 'additional_prompt_value',
                 'fetch_article': 'fetch_article',
                 'quality': 'quality',
-                'tags': 'tags_value'
+                'category': 'category_value'
             }
             field_types = {
                 'update_frequency': int,
@@ -329,7 +331,8 @@ class O_FeedAdmin(admin.ModelAdmin, CustomModelActions):
                 'quality': literal_eval        
             }
             update_fields = {}
-            tags_value = None
+            #tags_value = None
+            
             for field, value_field in fields.items():
                 value = post_data.get(value_field)
                 if post_data.get(field, 'Keep') != 'Keep' and value:
@@ -342,18 +345,23 @@ class O_FeedAdmin(admin.ModelAdmin, CustomModelActions):
                             content_type_summary_id, object_id_summary = map(int, value.split(':'))
                             update_fields['content_type_summary_id'] = content_type_summary_id
                             update_fields['object_id_summary'] = object_id_summary
-                        case 'tags':
-                            tags_value = value.split(",")
+                        case 'category':
+                            tag_model = O_Feed.category.tag_model
+                            category_o, _ = tag_model.objects.get_or_create(name=value)
+                            update_fields['category'] = category_o
+        
                         case _:
                             update_fields[field] = field_types.get(field, str)(value)
 
             if update_fields:
                 queryset.update(**update_fields)
+            # for obj in queryset:
+            #     obj.category.update_count()
 
-            if tags_value is not None:
-                for obj in queryset:
-                    obj.tags = [*tags_value]
-                    obj.save()
+            # if tags_value is not None:
+            #     for obj in queryset:
+            #         obj.tags = [*tags_value]
+            #         obj.save()
                 #O_Feed.objects.bulk_update(queryset, ['tags'])??
 
             #self.message_user(request, f"Successfully modified {queryset.count()} items.")
@@ -368,8 +376,8 @@ class O_FeedAdmin(admin.ModelAdmin, CustomModelActions):
 
 class T_FeedAdmin(admin.ModelAdmin, CustomModelActions):
     list_display = ["id", "feed_url", "o_feed", "status_icon", "language", "translate_title", "translate_content", "summary", "total_tokens", "total_characters", "size_in_kb", "modified"]
-    list_filter = ["status", "translate_title", "translate_content", "o_feed__tags"]
-    search_fields = ["sid", "o_feed__tags__name", "o_feed__feed_url"]
+    list_filter = ["status", "translate_title", "translate_content", "o_feed__category"]
+    search_fields = ["sid", "o_feed__category__name", "o_feed__feed_url"]
     readonly_fields = ["status", "language", "sid", "o_feed", "total_tokens", "total_characters", "size", "modified"]
     actions = ['t_feed_force_update', 't_feed_export_as_opml', 't_feed_batch_modify']
     # def get_search_results(self, request, queryset, search_term):
@@ -377,8 +385,8 @@ class T_FeedAdmin(admin.ModelAdmin, CustomModelActions):
     #     queryset |= self.model.objects.filter(o_feed__feed_url__icontains=search_term)
     #     return queryset, use_distinct
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('o_feed__tags')
+    # def get_queryset(self, request):
+    #     return super().get_queryset(request).prefetch_related('o_feed__category')
     
     def size_in_kb(self, obj):
         return int(obj.size / 1024)

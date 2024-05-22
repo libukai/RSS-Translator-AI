@@ -200,17 +200,17 @@ def generate_atom_feed(feed_url: str, feed_dict: dict):
 #     return json_feed
 
 
-def merge_all_atom(input_files):
+def merge_all_atom(input_files:list, filename:str):
     ATOM_NS = "http://www.w3.org/2005/Atom"
 
     output_dir = os.path.join(settings.DATA_FOLDER, 'feeds')
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, 'all_t.xml')
-    with open(output_file, 'wb') as f:
+    output_file = os.path.join(output_dir, f'{filename}.xml')
+    with open(os.path.normpath(output_file), 'wb') as f:
         f.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
         f.write(b'<?xml-stylesheet type="text/xsl" href="/static/rss.xsl"?>\n')
         f.write(f'<feed xmlns="{ATOM_NS}">\n'.encode('utf-8'))
-        f.write(b'<title>All Translated Feeds | RSS Translator</title>\n')
+        f.write(f'<title>Translated Feeds for {filename} | RSS Translator</title>\n'.encode('utf-8'))
         f.write(b'<link href="https://rsstranslator.com"/>\n')
         f.write(f'<updated>{datetime.now(timezone.utc).isoformat()}</updated>\n'.encode('utf-8'))
 
