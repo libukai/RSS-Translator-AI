@@ -98,7 +98,7 @@ def content_split(content: str) -> dict:
     #encoding = tiktoken.get_encoding("cl100k_base")
     encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
     try:
-        markdown = markdownify(content, heading_style="ATX")
+        markdown = markdownify(content, keep_inline_images_in=['td'], heading_style="ATX")
         chunks = re.split("\n+", markdown)
         tokens = []
         characters = []

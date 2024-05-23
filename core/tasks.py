@@ -506,5 +506,5 @@ def chunk_translate(
         "\n\n".join(translated_content),
         total_tokens,
         total_characters,
-        need_cache_objs,
+        need_cache_objs
     )
