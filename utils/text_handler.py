@@ -124,7 +124,7 @@ def group_chunks(
     current_value = 0
     try:
         for chunk, value in zip(chunks, values):
-            if (current_value + value) > (max_size / 3):
+            if (current_value + value) > (max_size / 2):
                 # If adding the current chunk exceeds 1/2 of max_size, add the current_chunk to grouped_chunks
                 grouped_chunks.append(current_chunk.strip())
                 # Start a new current_chunk with the current chunk

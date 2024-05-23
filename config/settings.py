@@ -30,8 +30,7 @@ SECRET_KEY = get_random_secret_key()
 DEBUG = os.environ.get('DEBUG') == '1'
 
 ALLOWED_HOSTS = ['*']
-# CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://trans.10k.xyz').split(',')
-CSRF_TRUSTED_ORIGINS = ['https://trans.10k.xyz']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://*').split(',')
 INTERNAL_IPS = [
     "127.0.0.1",
 ]

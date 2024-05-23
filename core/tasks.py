@@ -464,16 +464,16 @@ def content_summarize(original_content: str,
 
 
 def chunk_translate(
-        original_content: str, target_language: str, engine: TranslatorEngine
+        original_content: str, target_language: str, translate_engine: TranslatorEngine
 ):
     logging.info(
         "Call chunk_translate: %s(%s items)", target_language, len(original_content)
     )
     # NOTE: 在 text_handler 中调整为 AI 翻译版本
     split_chunks: dict = text_handler.content_split(original_content)
-    grouped_chunks: list = text_handler.group_chunks(split_chunks=split_chunks, min_size=engine.min_size(),
-                                                      max_size=engine.max_size(),
-                                                      group_by="characters")
+    grouped_chunks: list = text_handler.group_chunks(split_chunks=split_chunks, min_size=translate_engine.min_size(),
+                                                      max_size=translate_engine.max_size(),
+                                                      group_by="tokens")
     translated_content = []
     total_tokens = 0
     total_characters = 0
@@ -484,7 +484,7 @@ def chunk_translate(
         logging.info("Translate chunk: %s", chunk)
         cached = Translated_Content.is_translated(chunk, target_language)
         if not cached:
-            results = engine.translate(chunk, target_language=target_language)
+            results = translate_engine.translate(chunk, target_language=target_language, text_type="content")
             translated_content.append(results["text"] if results["text"] else chunk)
             total_tokens += results.get("tokens", 0)
             total_characters += len(chunk)
