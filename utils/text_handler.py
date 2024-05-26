@@ -7,6 +7,7 @@ import html2text
 from translator.models import TranslatorEngine
 from markdownify import markdownify
 
+
 def clean_content(content: str) -> str:
     """convert html to markdown without useless tags"""
     h = html2text.HTML2Text()

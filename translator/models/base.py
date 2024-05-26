@@ -143,7 +143,6 @@ class OpenAIInterface(TranslatorEngine):
                 top_p=self.top_p,
                 frequency_penalty=self.frequency_penalty,
                 presence_penalty=self.presence_penalty,
-                max_tokens=self.max_tokens,
             )
             if res.choices[0].finish_reason == "stop" or res.choices[0].message.content:
                 logging.info("OpenAITranslator->%s: %s", res.choices[0].finish_reason, text)
