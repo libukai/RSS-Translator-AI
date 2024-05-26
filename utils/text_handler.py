@@ -137,7 +137,7 @@ def group_chunks(
 
         # Add the last current_chunk to grouped_chunks
         if current_chunk:
-            grouped_chunks.append(current_chunk)
+            grouped_chunks.append(current_chunk.strip())
     except Exception as e:
         logging.error(f'group_chunks: {str(e)}')
         grouped_chunks = chunks

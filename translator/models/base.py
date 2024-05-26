@@ -6,6 +6,7 @@ from config import settings
 from openai import OpenAI
 from encrypted_model_fields.fields import EncryptedCharField
 
+
 class TranslatorEngine(models.Model):
     name = models.CharField(_("Name"), max_length=100, unique=True)
     valid = models.BooleanField(_("Valid"), null=True)
@@ -29,6 +30,7 @@ class TranslatorEngine(models.Model):
         if hasattr(self, "max_tokens"):
             return self.max_tokens * 0.9
         return 0
+
     def validate(self) -> bool:
         raise NotImplementedError(
             "subclasses of TranslatorEngine must provide a validate() method"
@@ -42,7 +44,7 @@ class TranslatorEngine(models.Model):
 
 
 class Translated_Content(models.Model):
-    #hash = models.BinaryField(max_length=8, unique=True, primary_key=True, editable=False)
+    # hash = models.BinaryField(max_length=8, unique=True, primary_key=True, editable=False)
     hash = models.CharField(max_length=39, editable=False, primary_key=True)
     original_content = models.TextField()
 
@@ -84,7 +86,7 @@ class OpenAIInterface(TranslatorEngine):
     model = models.CharField(max_length=100, default="gpt-3.5-turbo", help_text="e.g. gpt-3.5-turbo, gpt-4-turbo")
     translate_prompt = models.TextField(_("Title Translate Prompt"), default=settings.default_title_translate_prompt)
     content_translate_prompt = models.TextField(_("Content Translate Prompt"), default=settings.default_content_translate_prompt)
-    
+
     temperature = models.FloatField(default=0.2)
     top_p = models.FloatField(default=0.2)
     frequency_penalty = models.FloatField(default=0)
@@ -95,31 +97,32 @@ class OpenAIInterface(TranslatorEngine):
 
     class Meta:
         abstract = True
-    
+
     def _init(self):
         return OpenAI(
                     api_key=self.api_key,
-                    base_url = self.base_url,
-                    timeout=120.0,
+                    base_url=self.base_url,
+                    max_retries=3,
+                    timeout=300.0,
                 )
 
     def validate(self) -> bool:
         if self.api_key:
             try:
                 client = self._init()
-                res = client.with_options(max_retries=3).chat.completions.create(
+                res = client.chat.completions.create(
                     model=self.model,
                     messages=[{"role": "user", "content": 'Hi'}],
                     max_tokens=10,
                 )
-                fr = res.choices[0].finish_reason # 有些第三方源在key或url错误的情况下，并不会抛出异常代码，而是返回html广告，因此添加该行。
+                fr = res.choices[0].finish_reason
                 logging.info(">>> Translator Validate:%s",fr)
                 return True
             except Exception as e:
                 logging.error("OpenAIInterface validate ->%s", e)
                 return False
 
-    def translate(self, text:str, target_language:str, system_prompt:str=None, user_prompt:str=None, text_type:str='title') -> dict:
+    def translate(self, text: str, target_language: str, system_prompt: str = None, user_prompt: str = None, text_type: str = 'title') -> dict:
         logging.info(">>> Translate [%s]: %s", target_language, text)
         client = self._init()
         tokens = 0
@@ -130,9 +133,9 @@ class OpenAIInterface(TranslatorEngine):
             if user_prompt:
                 system_prompt += f"\n\n{user_prompt}"
 
-            res = client.with_options(max_retries=3).chat.completions.create(
+            res = client.chat.completions.create(
                 model=self.model,
-                messages = [
+                messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": text}
                 ],
@@ -153,7 +156,7 @@ class OpenAIInterface(TranslatorEngine):
             logging.error("Translator->%s: %s", e, text)
 
         return {'text': translated_text, "tokens": tokens}
-    
+
     def summarize(self, text:str, target_language:str) -> dict:
         logging.info(">>> Summarize [%s]: %s", target_language, text)
         return self.translate(text, target_language, system_prompt=self.summary_prompt)

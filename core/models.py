@@ -34,13 +34,13 @@ class O_Feed(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True, related_name='translator')
     object_id = models.PositiveIntegerField(null=True)
-    translator = GenericForeignKey( 'content_type', 'object_id')
+    translator = GenericForeignKey('content_type', 'object_id')
 
     content_type_summary = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True, related_name='summary_engine')
     object_id_summary = models.PositiveIntegerField(null=True)
-    summary_engine = GenericForeignKey( 'content_type_summary', 'object_id_summary')
-    
-    summary_detail = models.FloatField(_("Summary Detail"), 
+    summary_engine = GenericForeignKey('content_type_summary', 'object_id_summary')
+
+    summary_detail = models.FloatField(_("Summary Detail"),
                                        validators=[
                                             MinValueValidator(0.0),
                                             MaxValueValidator(1.0)
@@ -67,7 +67,7 @@ class O_Feed(models.Model):
 
     def get_translation_display(self):
         return dict(self.TRANSLATION_DISPLAY_CHOICES)[self.translation_display]
-    
+
 
 class T_Feed(models.Model):
     sid = models.SlugField(_("URL Slug(Optional)"), max_length=255, unique=True, help_text=_("Example: if set to hacker_news, the subscription address will be http://127.0.0.1:8000/rss/hacker_news"))  # sid for feed_url and file name

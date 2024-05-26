@@ -485,18 +485,19 @@ def chunk_translate(
         cached = Translated_Content.is_translated(chunk, target_language)
         if not cached:
             results = translate_engine.translate(chunk, target_language=target_language, text_type="content")
-            translated_content.append(results["text"] if results["text"] else chunk)
+            results_content = re.sub("^##\s+", "", results["text"])
+            translated_content.append(results_content if results else chunk)
             total_tokens += results.get("tokens", 0)
             total_characters += len(chunk)
 
             if chunk and results["text"]:
-                logging.info("Save to cache:%s", results["text"])
+                logging.info("Save to cache:%s", results_content)
                 hash128 = cityhash.CityHash128(f"{chunk}{target_language}")
                 need_cache_objs[hash128] = Translated_Content(
                     hash=str(hash128),
                     original_content=chunk,
                     translated_language=target_language,
-                    translated_content=results["text"],
+                    translated_content=results_content,
                     tokens=results.get("tokens", 0),
                     characters=results.get("characters", 0),
                 )
