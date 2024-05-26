@@ -29,15 +29,19 @@ def clean_content(content: str) -> str:
     content = re.sub(r'\n\s*\n', '\n', content)
     return content
 
+
 # Thanks to https://github.com/openai/openai-cookbook/blob/main/examples/Summarizing_with_controllable_detail.ipynb
 def tokenize(text: str) -> List[str]:
     encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
     return encoding.encode(text)
 
+
 '''
 This function combines text chunks into larger blocks without exceeding a specified token count. 
 It returns the combined text blocks, their original indices, and the count of chunks dropped due to overflow.
 '''
+
+
 def combine_chunks_with_no_minimum(
         chunks: List[str],
         max_tokens: int,
@@ -81,22 +85,24 @@ def combine_chunks_with_no_minimum(
         output_indices.append(candidate_indices)
     return output, output_indices, dropped_chunk_count
 
+
 # This function chunks a text into smaller pieces based on a maximum token count and a delimiter.
 def chunk_on_delimiter(input_string: str,
                        max_tokens: int, delimiter: str=' ') -> List[str]:
     chunks = input_string.split(delimiter)
-    combined_chunks, _, dropped_chunk_count = combine_chunks_with_no_minimum(
-        chunks, max_tokens, chunk_delimiter=delimiter, add_ellipsis_for_overflow=True
-    )
+    combined_chunks, _, dropped_chunk_count = combine_chunks_with_no_minimum(chunks, max_tokens, chunk_delimiter=delimiter, add_ellipsis_for_overflow=True)
     if dropped_chunk_count > 0:
         logging.warning("%d chunks were dropped due to overflow", dropped_chunk_count)
     combined_chunks = [f"{chunk}{delimiter}" for chunk in combined_chunks]
     return combined_chunks
 
+
 def content_split(content: str) -> dict:
-    """Split content into chunks, separated by one or more newlines."""
+    """
+    Split content into chunks, separated by one or more newlines.
     # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
     #encoding = tiktoken.get_encoding("cl100k_base")
+    """
     encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
     try:
         markdown = markdownify(content, keep_inline_images_in=['td'], heading_style="ATX")
@@ -115,7 +121,7 @@ def content_split(content: str) -> dict:
 
 
 def group_chunks(
-        split_chunks: dict, min_size: int, max_size: int, group_by: str
+        split_chunks: dict, max_size: int, group_by: str
 ) -> list:  # group_by: 'tokens' or 'characters'
     """Group very short chunks, to form approximately page long chunks."""
     chunks = split_chunks['chunks']
@@ -133,7 +139,10 @@ def group_chunks(
                 current_value = value
             else:
                 # If adding the current chunk does not exceed 1/2 of max_size, add it to current_chunk
-                current_chunk += "\n\n" + chunk
+                if chunk.startswith("|"):
+                    current_chunk += "\n" + chunk
+                else:
+                    current_chunk += "\n\n" + chunk
                 current_value += value
 
         # Add the last current_chunk to grouped_chunks
@@ -144,6 +153,7 @@ def group_chunks(
         grouped_chunks = chunks
 
     return grouped_chunks
+
 
 def should_skip(element):
     skip_tags = ['pre', 'code', 'script', 'style', 'head', 'title', 'meta', 'abbr', 'address', 'samp', 'kbd', 'bdo', 'cite', 'dfn']
@@ -169,12 +179,14 @@ def should_skip(element):
 
     return False
 
+
 def unwrap_tags(soup)->str:
     tags_to_unwrap = ['i', 'a', 'strong', 'b', 'em', 'span', 'sup', 'sub', 'mark', 'del', 'ins', 'u', 's', 'small']
     for tag_name in tags_to_unwrap:
         for tag in soup.find_all(tag_name):
             tag.unwrap()
     return str(soup)
+
 
 def set_translation_display(original:str, translation:str, translation_display:int, seprator:str = ' || ') -> str:
     if translation_display == 0: #'Only Translation'

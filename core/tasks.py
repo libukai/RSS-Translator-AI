@@ -471,7 +471,7 @@ def chunk_translate(
     )
     # NOTE: 在 text_handler 中调整为 AI 翻译版本
     split_chunks: dict = text_handler.content_split(original_content)
-    grouped_chunks: list = text_handler.group_chunks(split_chunks=split_chunks, min_size=translate_engine.min_size(),
+    grouped_chunks: list = text_handler.group_chunks(split_chunks=split_chunks,
                                                       max_size=translate_engine.max_size(),
                                                       group_by="tokens")
     translated_content = []

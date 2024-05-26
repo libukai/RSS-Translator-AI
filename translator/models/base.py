@@ -19,16 +19,16 @@ class TranslatorEngine(models.Model):
 
     def min_size(self) -> int:
         if hasattr(self, "max_characters"):
-            return self.max_characters * 0.7
+            return self.max_characters
         if hasattr(self, "max_tokens"):
-            return self.max_tokens * 0.7
+            return self.max_tokens
         return 0
 
     def max_size(self) -> int:
         if hasattr(self, "max_characters"):
-            return self.max_characters * 0.9
+            return self.max_characters
         if hasattr(self, "max_tokens"):
-            return self.max_tokens * 0.9
+            return self.max_tokens
         return 0
 
     def validate(self) -> bool:
