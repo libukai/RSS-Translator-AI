@@ -24,22 +24,26 @@ environments = []
 const Files = Java.type('java.nio.file.Files');
 const Paths = Java.type('java.nio.file.Paths');
 
-// 获取 Prompt
-const promptPath = Paths.get("/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/prompt.md");
-const promptRaw = Files.readString(promptPath)
-const PromptText = promptRaw.replace(/\n/g, '\\n').replace(/"/g, '\\"')
-
-
-// 获取 Content
-const contentPath = Paths.get("/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/content.md");
-const contentRaw = Files.readString(contentPath)
-const ContentText = contentRaw.replace(/\n/g, '\\n').replace(/"/g, '\\"')
-
+// 读取并处理文件内容的通用函数
+function readFileAndProcess(filePath) {
+    const path = Paths.get(filePath);
+    const rawContent = Files.readString(path);
+    return rawContent.replace(/\n/g, '\\n').replace(/"/g, '\\"');
+}
 
 try {
-    jc.variables.set("ContentText", ContentText );
-    jc.variables.set("PromptText", PromptText );
+    // 获取 Prompt
+    const promptFilePath = "/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/prompt.md";
+    const PromptText = readFileAndProcess(promptFilePath);
+
+    // 获取 Content
+    const contentFilePath = "/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/content.md";
+    const ContentText = readFileAndProcess(contentFilePath);
+
+    // 设置变量
+    jc.variables.set("ContentText", ContentText);
+    jc.variables.set("PromptText", PromptText);
 } catch (e) {
-    console.error("Error reading file: " + e.message);
+    console.error("Error Happend: " + e.message);
 }
 ```

@@ -1,5 +1,5 @@
 ```toml
-name = 'Google Flash'
+name = 'Google: Gemini Flash 1.5'
 method = 'POST'
 url = 'https://openrouter.ai/api/v1/chat/completions'
 sortWeight = 1000000

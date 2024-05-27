@@ -1,9 +1,9 @@
 ```toml
-name = 'OpenAI'
+name = 'Meta: Llama 3 70B Instruct'
 method = 'POST'
 url = 'https://openrouter.ai/api/v1/chat/completions'
-sortWeight = 2000000
-id = 'd0f773a9-5817-4735-ae6d-d3655f386293'
+sortWeight = 4000000
+id = 'd9a4df1a-784f-4db3-a4db-de813fb599c1'
 
 [body]
 type = 'JSON'
@@ -19,7 +19,7 @@ raw = '''
       "content": "{{ContentText}}"
     }
   ],
-  "model": "openai/gpt-3.5-turbo",
+  "model": "meta-llama/llama-3-70b-instruct",
   "frequency_penalty": 0,
   "presence_penalty": 0,
   "temperature": 0.5,
