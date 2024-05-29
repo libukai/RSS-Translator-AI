@@ -1,25 +1,3 @@
-Chương trình sẽ đưa các bé tham quan, thư giãn kết hợp học tập qua các điểm đến văn hóa, lịch sử của thành phố, như món quà Ngày Quốc tế thiếu nhi 1-6.
+Ông Yahaya Bin Ahmad, Giám đốc Kỹ thuật ASEAN NCAP, cho biết: "Chúng tôi vinh dự trao tặng 5 giải thưởng danh giá cho VinFast sau quá trình đánh giá khắt khe và minh bạch. VinFast đã khẳng định vị thế dẫn đầu trong ngành công nghiệp ô tô khu vực bằng cách đặt tiêu chí an toàn lên hàng đầu. Nhờ sự đầu tư nghiêm túc và không ngừng đổi mới, VinFast trang bị cho các dòng xe của mình, đặc biệt là VF 8, những tính năng an toàn vượt trội, đáp ứng các tiêu chuẩn quốc tế khắt khe".
 
-Đây là hoạt động nhằm tạo điều kiện cho các bé vui chơi, giao lưu và chia sẻ với những bạn cùng hoàn cảnh do Vietluxtour phối hợp cùng báo Thanh Niên tổ chức để lan tỏa động lực tích cực, cùng nhau phấn đấu, vượt qua khó khăn trong cuộc sống.
-
-## Giá nhiều loại rau tăng 40-80%
-
-Theo thông tin từ nhiều tiểu thương tại chợ đầu mối Thủ Đức, Hóc Môn (TP.HCM), giá bán sỉ nhiều loại rau củ tại chợ hiện tăng 20 - 30% so với tháng trước, và tăng 40 - 80% so với thời điểm giá tốt sau Tết Nguyên đán.
-
-![Giá nhiều loại rau củ đang ở mức cao - Ảnh: N.TRÍ](https://cdn.tuoitre.vn/thumb_w/1100/471584752817336320/2024/5/26/rau-cu-17167261181801758242089.jpg "Giá nhiều loại rau củ đang ở mức cao - Ảnh: N.TRÍ")
-
-Giá nhiều loại rau củ đang ở mức cao - Ảnh: N.TRÍ
-
-Cụ thể, giá cải thìa, cải bẹ, cải xanh 22.000 - 28.000 đồng/kg; khổ qua 23.000 đồng/kg; cải bó xôi 40.000 đồng/kg; xà lách, khoai tây Đà Lạt 25.000 - 35.000 đồng/kg tùy loại.
-
-Đặc biệt, một số loại giá bán tăng gần gấp đôi so với các tháng trước như cà chua hiện phổ biến 20.000 - 35.000 đồng/kg tùy loại, hành lá 35.000 đồng/kg...
-
-Theo các tiểu thương, năng suất các vườn rau thời gian qua giảm mạnh vì bị đứt lứa, chịu thời tiết bất thường, cung không đủ nhu cầu khiến giá bán tăng mạnh.
-
-Nguồn cung rau cho TP.HCM chủ yếu đến từ Lâm Đồng, nhưng sản lượng rau của địa phương này thời gian qua cũng khá thấp, đặc biệt là các mặt hàng như cà chua, hành lá...
-
-[Tin tức](https://tuoitre.vn/tin-tuc.html "tin tức") từ đại diện chợ đầu mối nông sản Thủ Đức, nguồn cung rau củ dễ thay đổi vì vòng đời sản xuất ngắn. Do đó, nếu thời tiết ổn định, năng suất rau tăng, giá bán sẽ nhanh chóng hạ nhiệt.
-
-![Tin tức chính trên Tuổi Trẻ nhật báo hôm nay 27-5. Để đọc Tuổi Trẻ báo in phiên bản E-paper, mời bạn đăng ký Tuổi Trẻ Sao TẠI ĐÂY](https://cdn.tuoitre.vn/thumb_w/1100/471584752817336320/2024/5/27/doc-gi-17167491854191292145671.png "Tin tức chính trên Tuổi Trẻ nhật báo hôm nay 27-5. Để đọc Tuổi Trẻ báo in phiên bản E-paper, mời bạn đăng ký Tuổi Trẻ Sao TẠI ĐÂY")
-
-Tin tức chính trên Tuổi Trẻ nhật báo hôm nay 27-5. Để đọc Tuổi Trẻ báo in phiên bản E-paper, mời bạn đăng ký Tuổi Trẻ Sao [TẠI ĐÂY](https://sso.tuoitre.vn/dang-ky-tuoi-tre-sao "TẠI ĐÂY")
+[ASEAN NCAP](https://thanhnien.vn/vinfast-vf-e34-xep-hang-4-sao-an-toan-theo-chuan-asean-ncap-1851519458.htm "ASEAN NCAP") là tiêu chuẩn an toàn uy tín nhất Đông Nam Á và được công nhận rộng rãi trên toàn cầu. Chương trình đánh giá của ASEAN NCAP tập trung vào hai tiêu chí chính: khả năng bảo vệ an toàn cho người lớn và trẻ em trên xe. Hai năm một lần, ASEAN NCAP tổ chức Giải thưởng Grand Prix ASEAN NCAP để vinh danh các nhà sản xuất ô tô đạt thành tích xuất sắc về an toàn. Sự kiện uy tín này thu hút sự tham gia của tất cả thương hiệu ô tô đang hoạt động trong khu vực.
