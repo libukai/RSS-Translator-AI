@@ -18,6 +18,7 @@ class OpenRouterAITranslator(OpenAIInterface):
             try:
                 client = self._init()
                 res = client.chat.completions.create(
+                    # NOTE: 增加调用时的客户端标识
                     extra_headers={
                         "HTTP-Referer": "https://news.10k.xyz",
                         "X-Title": "RSS-Translator",

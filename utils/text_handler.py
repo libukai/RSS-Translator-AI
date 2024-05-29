@@ -129,6 +129,7 @@ def group_chunks(
     grouped_chunks = []
     current_chunk = ''
     current_value = 0
+    # NOTE: 将 chunk 进行拼接，按照 max_size 的一半长度来吐给 AI 进行翻译
     try:
         for chunk, value in zip(chunks, values):
             if (current_value + value) > (max_size / 2):

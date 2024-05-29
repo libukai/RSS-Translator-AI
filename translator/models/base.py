@@ -102,8 +102,8 @@ class OpenAIInterface(TranslatorEngine):
         return OpenAI(
                     api_key=self.api_key,
                     base_url=self.base_url,
-                    max_retries=3,
-                    timeout=300.0,
+                    max_retries=3,  # 配置重试次数
+                    timeout=300.0,  # 配置超时时间
                 )
 
     def validate(self) -> bool:

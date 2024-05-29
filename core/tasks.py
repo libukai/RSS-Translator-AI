@@ -361,7 +361,7 @@ def content_translate(original_content: str, target_language: str, engine: Trans
         for element in soup.find_all(string=True):
             if text_handler.should_skip(element):
                 continue
-            #TODO 如果文字长度大于最大长度，就分段翻译，需要用chunk_translate
+            # TODO: 如果文字长度大于最大长度，就分段翻译，需要用chunk_translate
             text = element.get_text()
 
             logging.info("[Content] Translate: %s...", text)
