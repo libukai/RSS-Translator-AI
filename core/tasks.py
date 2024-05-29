@@ -239,7 +239,7 @@ def translate_feed(
                 if not cached:
                     results = translate_engine.translate(title, target_language=target_language, text_type="title")
                     paragraphs = re.split('\n', results.get("text", title).strip())[0]
-                    translated_text = re.sub("[.,，。]$", "", paragraphs)
+                    translated_text = re.sub(r"^##\s*|[\.,，。]$", "", paragraphs)
                     total_tokens += results.get("tokens", 0)
                     translated_characters += len(title)
                     if title and translated_text:
