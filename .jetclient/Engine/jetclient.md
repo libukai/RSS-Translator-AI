@@ -33,11 +33,11 @@ function readFileAndProcess(filePath) {
 
 try {
     // 获取 Prompt
-    const promptFilePath = "/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/prompt.md";
+    const promptFilePath = "/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/prompt-vietnamese.md";
     const PromptText = readFileAndProcess(promptFilePath);
 
     // 获取 Content
-    const contentFilePath = "/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/content.md";
+    const contentFilePath = "/Users/likai/Github/Tools/RSS-Translator/.jetclient/Engine/Text/vietnamese.md";
     const ContentText = readFileAndProcess(contentFilePath);
 
     // 设置变量
