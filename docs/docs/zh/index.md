@@ -23,6 +23,7 @@
    
 目前支持的翻译服务：
 
+- Free Translators(集合了所有主流的免费翻译服务)
 - DeepL
 - DeepLX
 - Google Translate(Web)
@@ -36,6 +37,9 @@
 - Together AI
 - OpenRouter AI
 - Groq
+- 豆包(Doubao)
+- OpenL
+- Kagi API
 
 陆续增加中   
 具体信息请查看[<翻译服务>](translator.md)
@@ -58,7 +62,7 @@
     </td>
     <td style="padding:10px;">
       <a href="https://www.gitpod.io">
-        <img src="https://raw.githubusercontent.com/rss-translator/RSS-Translator/main/website/docs/assets/gitpod.svg" alt="Gitpod" style="width:100px; height:100px;">
+        <img src="https://raw.githubusercontent.com/rss-translator/RSS-Translator/main/docs/docs/assets/gitpod.svg" alt="Gitpod" style="width:100px; height:100px;">
       </a>
     </td>
   </tr>
@@ -67,12 +71,12 @@
 
 非常感谢以下用户的支持:
 <p align="center">
-  <a href="https://raw.githubusercontent.com/versun/54321-Weekly/main/scripts/sponsorkit/sponsorkit/sponsors.svg">
-    <img src='https://raw.githubusercontent.com/versun/54321-Weekly/main/scripts/sponsorkit/sponsorkit/sponsors.svg'/>
+  <a href="https://github.com/versun/sponsors/">
+    <img src='https://raw.githubusercontent.com/versun/sponsors/main/sponsors.svg'/>
   </a>
 </p>
 
-如有余力，请考虑成为赞助者：[爱发电](https://afdian.net/a/versun) | [Open Collective](https://opencollective.com/rsstranslator)
+如有余力，请考虑成为赞助者：[爱发电](https://afdian.com/a/versun) | [Open Collective](https://opencollective.com/rsstranslator)
 > 说明： 赞助头像每天早上和下午的5:30分刷新(UTC时区)。
 ## 开发贡献
 [请查看Wiki](https://github.com/rss-translator/RSS-Translator/wiki)

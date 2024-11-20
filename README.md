@@ -4,7 +4,7 @@
 </div>
 <br/>
 
-| [English](https://rsstranslator.com/en) | [Demo](https://rsstranslator.com/demo/) | [Telegram交流群](https://t.me/rsstranslator) | [开发进度](https://github.com/orgs/rss-translator/projects/2/views/1)
+| [English](https://rsstranslator.com/en) | [Demo](https://rsstranslator.com/demo/) | [Telegram交流群](https://t.me/rsstranslator) | [开发进度](https://github.com/orgs/rss-translator/projects/2/views/1) | [收支表](https://versun.notion.site/RSS-10a92896fa998028a162c57bfb0ac3dc)
 
 ---
 
@@ -23,6 +23,7 @@
    
 目前支持的翻译引擎：
 
+- Free Translators(集合了所有主流的免费翻译服务)
 - DeepL
 - DeepLX
 - OpenAI
@@ -36,6 +37,9 @@
 - Together AI
 - OpenRouter AI
 - Groq
+- 豆包(Doubao)
+- OpenL
+- Kagi API
 
 陆续增加中
 
@@ -57,7 +61,7 @@
     </td>
     <td style="padding:10px;">
       <a href="https://www.gitpod.io">
-        <img src="https://raw.githubusercontent.com/rss-translator/RSS-Translator/main/website/docs/assets/gitpod.svg" alt="Gitpod" style="width:100px; height:100px;">
+        <img src="https://raw.githubusercontent.com/rss-translator/RSS-Translator/main/docs/docs/assets/gitpod.svg" alt="Gitpod" style="width:100px; height:100px;">
       </a>
     </td>
   </tr>
@@ -68,12 +72,12 @@
 非常感谢以下用户的支持:
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/versun/54321-Weekly/main/scripts/sponsorkit/sponsorkit/sponsors.svg">
-    <img src='https://raw.githubusercontent.com/versun/54321-Weekly/main/scripts/sponsorkit/sponsorkit/sponsors.svg'/>
+  <a href="https://github.com/versun/sponsors/">
+    <img src='https://raw.githubusercontent.com/versun/sponsors/main/sponsors.svg'/>
   </a>
 </p>
 
-如有余力，请考虑成为赞助者：[爱发电](https://afdian.net/a/versun) | [Open Collective](https://opencollective.com/rsstranslator)
+如有余力，请考虑成为赞助者：[爱发电](https://afdian.com/a/versun) | [Github Sponsor](https://github.com/sponsors/versun)
 > 说明： 赞助头像每天早上和下午的5:30分刷新(UTC时区)。
 ## 开发贡献
 [请查看Wiki](https://github.com/rss-translator/RSS-Translator/wiki)

@@ -11,12 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-#from django.utils.crypto import get_random_string
+
+# from django.utils.crypto import get_random_string
 from django.core.management.utils import get_random_secret_key
 import os
 
-USER_MANAGEMENT = os.environ.get('USER_MANAGEMENT') == '1'
-DEMO = os.environ.get('DEMO') == '1'
+USER_MANAGEMENT = os.environ.get("USER_MANAGEMENT") == "1"
+DEMO = os.environ.get("DEMO") == "1"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_random_secret_key()
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG') == '1'
+DEBUG = os.environ.get("DEBUG") == "1"
 
 ALLOWED_HOSTS = ['*']
 # CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://*').split(',')
@@ -37,7 +38,7 @@ INTERNAL_IPS = [
 ]
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
@@ -55,23 +56,23 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'huey.contrib.djhuey',
-    'translator.apps.TranslatorConfig',
-    'core.apps.CoreConfig',
-    'encrypted_model_fields', # must set FIELD_ENCRYPTION_KEY value
-    'tagulous',
+    "huey.contrib.djhuey",
+    "translator.apps.TranslatorConfig",
+    "core.apps.CoreConfig",
+    "encrypted_model_fields",  # must set FIELD_ENCRYPTION_KEY value
+    "tagulous",
 ]
 DEBUG_PLUGINS = [
     "debug_toolbar",
-    'bx_django_utils',  # https://github.com/boxine/bx_django_utils
+    "bx_django_utils",  # https://github.com/boxine/bx_django_utils
     #'huey_monitor',
 ]
 
 SERIALIZATION_MODULES = {
-    'xml':    'tagulous.serializers.xml_serializer',
-    'json':   'tagulous.serializers.json',
-    'python': 'tagulous.serializers.python',
-    'yaml':   'tagulous.serializers.pyyaml',
+    "xml": "tagulous.serializers.xml_serializer",
+    "json": "tagulous.serializers.json",
+    "python": "tagulous.serializers.python",
+    "yaml": "tagulous.serializers.pyyaml",
 }
 
 MIDDLEWARE = [
@@ -126,11 +127,11 @@ DATABASES = {
 }
 
 HUEY = {
-    'huey_class': 'huey.SqliteHuey',
-    'filename': DATA_FOLDER / "tasks.sqlite3",
-    'consumer': {
-        'workers': int(os.environ.get('HUEY_WORKERS', 10)),
-        'worker_type': 'greenlet',
+    "huey_class": "huey.SqliteHuey",
+    "filename": DATA_FOLDER / "tasks.sqlite3",
+    "consumer": {
+        "workers": int(os.environ.get("HUEY_WORKERS", 10)),
+        "worker_type": "greenlet",
     },
     "immediate": False,
     "results": False,
@@ -161,8 +162,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 LANGUAGES = [
-    ('zh-hans', '简体中文'),
-    ('en-us', 'English'),
+    ("zh-hans", "简体中文"),
+    ("en-us", "English"),
 ]
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
@@ -191,58 +192,62 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-#https://pypi.org/project/django-encrypted-model-fields/
+# https://pypi.org/project/django-encrypted-model-fields/
 FIELD_ENCRYPTION_KEY = "RWdGiEq3LgOf3Tyt3ALlEnxUkIlL4wS2dCDBe_sLWWo="
 
 TRANSLATION_LANGUAGES = [
-   ("English", "English"),
-   ("Chinese Simplified", "Chinese Simplified"),
-   ("Chinese Traditional", "Chinese Traditional"),
-   ("Russian", "Russian"),
-   ("Japanese", "Japanese"),
-   ("Korean", "Korean"),
-   ("Czech", "Czech"),
-   ("Danish", "Danish"),
-   ("German", "German"),
-   ("Spanish", "Spanish"),
-   ("French", "French"),
-   ("Indonesian", "Indonesian"),
-   ("Italian", "Italian"),
-   ("Hungarian", "Hungarian"),
-   ("Norwegian Bokmal", "Norwegian Bokmal"),
-   ("Dutch", "Dutch"),
-   ("Polish", "Polish"),
-   ("Portuguese", "Portuguese"),
-   ("Swedish", "Swedish"),
-   ("Turkish", "Turkish"),
+    ("English", "English"),
+    ("Chinese Simplified", "Chinese Simplified"),
+    ("Chinese Traditional", "Chinese Traditional"),
+    ("Russian", "Russian"),
+    ("Japanese", "Japanese"),
+    ("Korean", "Korean"),
+    ("Czech", "Czech"),
+    ("Danish", "Danish"),
+    ("German", "German"),
+    ("Spanish", "Spanish"),
+    ("French", "French"),
+    ("Indonesian", "Indonesian"),
+    ("Italian", "Italian"),
+    ("Hungarian", "Hungarian"),
+    ("Norwegian Bokmal", "Norwegian Bokmal"),
+    ("Dutch", "Dutch"),
+    ("Polish", "Polish"),
+    ("Portuguese", "Portuguese"),
+    ("Swedish", "Swedish"),
+    ("Turkish", "Turkish"),
 ]
-LOG_LEVEL = os.environ.get('LOG_LEVEL',"ERROR") # DEBUG > INFO > WARNING > ERROR > CRITICAL
+LOG_LEVEL = os.environ.get(
+    "LOG_LEVEL", "ERROR"
+)  # DEBUG > INFO > WARNING > ERROR > CRITICAL
 LOGGING = {
-   'version': 1,
-   'disable_existing_loggers': False,
-   'formatters':{
-       'verbose':{
-           'format': '{levelname} {asctime} {message:.240s}',
-           'style': '{',
-           },
-       },
-   'handlers': {
-       'logfile': {
-           'level': LOG_LEVEL,
-           'class': 'logging.handlers.RotatingFileHandler',
-           'filename': DATA_FOLDER / 'app.log',
-           'maxBytes': 1024 * 1024 * 10,  # 10 MB
-           'encoding': 'utf-8',
-           'backupCount': 3,
-           'formatter': 'verbose',
-       },
-   },
-   'root': {
-       'handlers': ['logfile'],
-       'level': LOG_LEVEL,
-   },
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {message:.240s}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "logfile": {
+            "level": LOG_LEVEL,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": DATA_FOLDER / "app.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10 MB
+            "encoding": "utf-8",
+            "backupCount": 3,
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["logfile"],
+        "level": LOG_LEVEL,
+    },
 }
 
 default_title_translate_prompt = "You are a professional, authentic translation engine. Translate only the text into {target_language}, return only the translations, do not explain the original text."
 default_content_translate_prompt = "You are a professional, authentic translation engine. Translate only the text into {target_language}, return only the translations, do not explain the original text."
-default_summary_prompt = "Summarize the following text in {target_language} and return markdown format."
+default_summary_prompt = (
+    "Summarize the following text in {target_language} and return markdown format."
+)

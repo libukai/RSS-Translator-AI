@@ -12,7 +12,9 @@ class TranslatorEngine(models.Model):
     valid = models.BooleanField(_("Valid"), null=True)
     is_ai = models.BooleanField(default=False, editable=False)
 
-    def translate(self, text: str, target_language: str) -> dict:
+    def translate(
+        self, text: str, target_language: str, source_language: str = "auto", **kwargs
+    ) -> dict:
         raise NotImplementedError(
             "subclasses of TranslatorEngine must provide a translate() method"
         )
@@ -64,9 +66,9 @@ class Translated_Content(models.Model):
             content = Translated_Content.objects.get(hash=text_hash)
             # logging.info("Using cached translations:%s", text)
             return {
-                'text': content.translated_content,
-                'tokens': content.tokens,
-                'characters': content.characters
+                "text": content.translated_content,
+                "tokens": content.tokens,
+                "characters": content.characters,
             }
         except Translated_Content.DoesNotExist:
             logging.info("Does not exist in cache:%s", text)
@@ -74,18 +76,30 @@ class Translated_Content(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.hash:
-            self.hash = str(cityhash.CityHash128(f"{self.original_content}{self.translated_language}"))
+            self.hash = str(
+                cityhash.CityHash128(
+                    f"{self.original_content}{self.translated_language}"
+                )
+            )
 
         super(Translated_Content, self).save(*args, **kwargs)
 
 
 class OpenAIInterface(TranslatorEngine):
-    is_ai = models.BooleanField(default=True,editable=False)
+    is_ai = models.BooleanField(default=True, editable=False)
     api_key = EncryptedCharField(_("API Key"), max_length=255)
     base_url = models.URLField(_("API URL"), default="https://api.openai.com/v1")
-    model = models.CharField(max_length=100, default="gpt-3.5-turbo", help_text="e.g. gpt-3.5-turbo, gpt-4-turbo")
-    translate_prompt = models.TextField(_("Title Translate Prompt"), default=settings.default_title_translate_prompt)
-    content_translate_prompt = models.TextField(_("Content Translate Prompt"), default=settings.default_content_translate_prompt)
+    model = models.CharField(
+        max_length=100,
+        default="gpt-3.5-turbo",
+        help_text="e.g. gpt-3.5-turbo, gpt-4-turbo",
+    )
+    translate_prompt = models.TextField(
+        _("Title Translate Prompt"), default=settings.default_title_translate_prompt
+    )
+    content_translate_prompt = models.TextField(
+        _("Content Translate Prompt"), default=settings.default_content_translate_prompt
+    )
 
     temperature = models.FloatField(default=0.2)
     top_p = models.FloatField(default=0.2)
@@ -100,11 +114,10 @@ class OpenAIInterface(TranslatorEngine):
 
     def _init(self):
         return OpenAI(
-                    api_key=self.api_key,
-                    base_url=self.base_url,
-                    max_retries=3,  # 配置重试次数
-                    timeout=300.0,  # 配置超时时间
-                )
+            api_key=self.api_key,
+            base_url=self.base_url,
+            timeout=120.0,
+        )
 
     def validate(self) -> bool:
         if self.api_key:
@@ -112,51 +125,74 @@ class OpenAIInterface(TranslatorEngine):
                 client = self._init()
                 res = client.chat.completions.create(
                     model=self.model,
-                    messages=[{"role": "user", "content": 'Hi'}],
+                    messages=[{"role": "user", "content": "Hi"}],
                     max_tokens=10,
                 )
-                fr = res.choices[0].finish_reason
-                logging.info(">>> Translator Validate:%s",fr)
+                fr = res.choices[
+                    0
+                ].finish_reason  # 有些第三方源在key或url错误的情况下，并不会抛出异常代码，而是返回html广告，因此添加该行。
+                logging.info(">>> Translator Validate:%s", fr)
                 return True
             except Exception as e:
                 logging.error("OpenAIInterface validate ->%s", e)
                 return False
 
-    def translate(self, text: str, target_language: str, system_prompt: str = None, user_prompt: str = None, text_type: str = 'title') -> dict:
+    def translate(
+        self,
+        text: str,
+        target_language: str,
+        system_prompt: str = None,
+        user_prompt: str = None,
+        text_type: str = "title",
+    ) -> dict:
         logging.info(">>> Translate [%s]: %s", target_language, text)
         client = self._init()
         tokens = 0
-        translated_text = ''
-        system_prompt = system_prompt or self.translate_prompt if text_type == 'title' else self.content_translate_prompt
+        translated_text = ""
+        system_prompt = (
+            system_prompt or self.translate_prompt
+            if text_type == "title"
+            else self.content_translate_prompt
+        )
         try:
-            system_prompt = system_prompt.replace('{target_language}', target_language)
+            system_prompt = system_prompt.replace("{target_language}", target_language)
             if user_prompt:
                 system_prompt += f"\n\n{user_prompt}"
 
             res = client.chat.completions.create(
+                extra_headers={
+                    "HTTP-Referer": "https://www.rsstranslator.com",
+                    "X-Title": "RSS Translator"
+                },
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text}
+                    {"role": "user", "content": text},
                 ],
                 temperature=self.temperature,
                 top_p=self.top_p,
                 frequency_penalty=self.frequency_penalty,
                 presence_penalty=self.presence_penalty,
             )
-            if res.choices[0].finish_reason.lower() == "stop" or res.choices[0].message.content:
+            if res.choices[0].finish_reason == "stop" or res.choices[0].message.content:
+                logging.info(
+                    "OpenAITranslator->%s: %s", res.choices[0].finish_reason, text
+                )
                 translated_text = res.choices[0].message.content
-                logging.info("OpenAITranslator->%s: %s", res.choices[0].finish_reason, translated_text)
+                logging.info(
+                    "OpenAITranslator->%s: %s",
+                    res.choices[0].finish_reason,
+                    translated_text,
+                )
             # else:
             #     translated_text = ''
             #     logging.warning("Translator->%s: %s", res.choices[0].finish_reason, text)
-            tokens = res.usage.total_tokens
+            tokens = res.usage.total_tokens if res.usage else 0
         except Exception as e:
             logging.error("ErrorTranslator->%s: %s", e, text)
 
-        return {'text': translated_text, "tokens": tokens}
+        return {"text": translated_text, "tokens": tokens}
 
-    def summarize(self, text:str, target_language:str) -> dict:
+    def summarize(self, text: str, target_language: str) -> dict:
         logging.info(">>> Summarize [%s]: %s", target_language, text)
         return self.translate(text, target_language, system_prompt=self.summary_prompt)
-

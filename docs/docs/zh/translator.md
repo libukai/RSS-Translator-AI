@@ -1,6 +1,22 @@
 > 强烈建议使用收费服务，免费的服务限制较多且容易出错。  
 > 本人长期使用[OhMyGPT](https://www.ohmygpt.com?aff=FQcnRPCb)，支持多种主流模型，服务稳定价格低廉，非常建议使用。     
 > 邀请码：FQcnRPCb，双方均可获得额外奖励。  
+> 如需常规的翻译服务，建议使用[OpenL](https://my.openl.club/login/wechat?ref=CKXJN)，集成了众多第三方翻译服务，价格很实惠
+
+## Free Translators
+基于[UlionTse/translators](https://github.com/UlionTse/translators)打包的[easytranslator](https://github.com/versun/easytranslator/)，非常感谢。  
+集合了市面上所有主流的翻译服务，包括但不限于：     
+- Google   
+- DeepL   
+- Alibaba   
+- Bing   
+- Baidu   
+- DeepL   
+- QQ Translate Smart   
+- Sogou   
+...   
+通过负载均衡，实现高可用的翻译。   
+缺点：翻译质量一般，如果不追求高质量，可选择该服务  
 
 ## OpenAI
 官方网站：[openai.com/product](https://openai.com/product)  
@@ -22,6 +38,18 @@
 ## Moonshot AI
 官方网站：[www.moonshot.cn](https://www.moonshot.cn)
 
+## 豆包(Doubao)
+官方网站：[www.volcengine.com/product/doubao](https://www.volcengine.com/product/doubao)
+
+## Together AI
+官方网站：[www.together.ai](https://www.together.ai)
+
+## OpenRouter AI
+官方网站：[openrouter.ai](https://openrouter.ai/)
+
+## Groq
+官方网站：[groq.com](https://groq.com/)
+
 ## DeepL
 官方网站：[www.deepl.com/zh/pro-api](https://www.deepl.com/zh/pro-api)  
 需要提供一张 DeepL 支持的国家或地区发行的 VISA 或 MASTER 信用卡，目前国内发行的任何信用卡（包括双币卡和外币卡）均不被支持。  
@@ -36,3 +64,9 @@
 
 ## Caiyun API
 官方网站：[dashboard.caiyunapp.com](https://dashboard.caiyunapp.com)
+
+## OpenL
+官方网站：[my.openl.club/login/wechat?ref=CKXJN](https://my.openl.club/login/wechat?ref=CKXJN)
+
+## Kagi
+官方网站：[kagi.com/settings?p=api](https://kagi.com/settings?p=api)

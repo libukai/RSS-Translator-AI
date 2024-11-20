@@ -1,8 +1,10 @@
-name: Docker Image CI
+name: dev:Docker Image CI
 
 on:
   release:
-    types: [published]
+    types: [prereleased]
+    branches:    
+      - next
     
 jobs:
   build:
@@ -31,4 +33,6 @@ jobs:
       with:
         platforms: linux/arm64,linux/amd64
         push: true
-        tags: rsstranslator/rsstranslator:latest,rsstranslator/rsstranslator:${{ steps.latesttag.outputs.tag }}
+        tags: rsstranslator/rsstranslator:dev,rsstranslator/rsstranslator:${{ steps.latesttag.outputs.tag }}
+
+

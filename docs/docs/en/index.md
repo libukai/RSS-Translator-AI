@@ -23,6 +23,7 @@ Official website: [rsstranslator.com](https://rsstranslator.com)
    
 Currently supported translation services:
 
+- Free Translators(A collection of all major free translation services)
 - DeepL
 - DeepLX
 - Google Translate(Web)
@@ -36,6 +37,9 @@ Currently supported translation services:
 - Together AI
 - OpenRouter AI
 - Groq
+- Doubao
+- OpenL
+- Kagi API
 
 Continuously adding   
 For more information, please check [translation service](translator.md).
@@ -58,19 +62,19 @@ Thanks to the following companies for providing open source support for this pro
     </td>
     <td style="padding:10px;">
       <a href="https://www.gitpod.io">
-        <img src="https://raw.githubusercontent.com/rss-translator/RSS-Translator/main/website/docs/assets/gitpod.svg" alt="Gitpod" style="width:100px; height:100px;">
+        <img src="https://raw.githubusercontent.com/rss-translator/RSS-Translator/main/docs/docs/assets/gitpod.svg" alt="Gitpod" style="width:100px; height:100px;">
       </a>
     </td>
   </tr>
 </table>
 Thank you for your support!
-<p>
-  <a href="https://raw.githubusercontent.com/versun/54321-Weekly/main/scripts/sponsorkit/sponsorkit/sponsors.svg">
-    <img src='https://raw.githubusercontent.com/versun/54321-Weekly/main/scripts/sponsorkit/sponsorkit/sponsors.svg'/>
+<p align="center">
+  <a href="https://github.com/versun/sponsors/">
+    <img src='https://raw.githubusercontent.com/versun/sponsors/main/sponsors.svg'/>
   </a>
 </p>
 
-If it has helped you, please consider sponsoring me: [AFDIAN](https://afdian.net/a/versun) | [Open Collective](https://opencollective.com/rsstranslator)
+If it has helped you, please consider sponsoring me: [AFDIAN](https://afdian.com/a/versun) | [Open Collective](https://opencollective.com/rsstranslator)
 > Description: Sponsored avatars are refreshed every morning and afternoon at 5:30 a.m. (UTC time zone).
 
 ## Contribution
