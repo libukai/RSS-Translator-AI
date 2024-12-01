@@ -1,0 +1,33 @@
+services:
+  rsstranslator:
+    container_name: rss-translator-ai
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - DEBUG=1
+      - DEMO=0
+      - USER_MANAGEMENT=0
+      - LOG_LEVEL=INFO
+      - HUEY_WORKERS=10
+      - CSRF_TRUSTED_ORIGINS=https://trans.10k.xyz
+      - default_update_frequency=30
+      - default_max_posts=20
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/home/rsstranslator/data
+    ports:
+      - "8100:8000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python manage.py run_huey"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  default:
+    driver: bridge
