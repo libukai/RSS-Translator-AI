@@ -11,7 +11,6 @@ import cityhash
 import feedparser
 import mistune
 import newspaper
-from bs4 import BeautifulSoup
 from django.conf import settings
 from django.db import IntegrityError
 from feed2json import feed2json
@@ -356,11 +355,6 @@ def translate_feed(
                             content  # Fallback to original content if all retries fail
                         )
 
-                    if quality:
-                        translation = mistune.html(translated_summary)
-                    else:
-                        translation = translated_summary
-
                     total_tokens += tokens
                     translated_characters += characters
 
@@ -369,7 +363,7 @@ def translate_feed(
                     text = text_handler.set_translation_display(
                         original=content,
                         # NOTE: 将翻译得到的 Markdown 转换为 HTML
-                        translation=translation,
+                        translation=mistune.html(translated_summary),
                         translation_display=translation_display,
                         seprator="<br />---------------<br />",
                     )
@@ -466,77 +460,16 @@ def content_translate(
             target_language,
         )
 
-        if quality:
-            return chunk_translate(
-                original_content=original_content,
-                target_language=target_language,
-                engine=engine,
-                translate_title=translate_title,
-            )
-        else:
-            return tag_translate(
-                original_content=original_content,
-                target_language=target_language,
-                engine=engine,
-                source_language=source_language,
-            )
+        return chunk_translate(
+            original_content=original_content,
+            target_language=target_language,
+            engine=engine,
+            translate_title=translate_title,
+        )
+
     except Exception as e:
         logging.error(f"Content translation failed: {str(e)}")
         return "", 0, 0, {}
-
-
-def tag_translate(
-    original_content: str,
-    target_language: str,
-    engine: TranslatorEngine,
-    source_language: str = "auto",
-):
-    total_tokens = 0
-    total_characters = 0
-    need_cache_objs = {}
-    soup = BeautifulSoup(original_content, "lxml")
-
-    try:
-        soup = BeautifulSoup(text_handler.unwrap_tags(soup), "lxml")
-
-        for element in soup.find_all(string=True):
-            if text_handler.should_skip(element):
-                continue
-            text = element.get_text()
-
-            logging.info("[Content] Translate: %s...", text)
-            cached = Translated_Content.is_translated(text, target_language)
-
-            if not cached:
-                results = engine.translate(
-                    text,
-                    target_language=target_language,
-                    source_language=source_language,
-                    text_type="content",
-                )
-                total_tokens += results.get("tokens", 0)
-                total_characters += len(text)
-
-                if results["text"]:
-                    logging.info("[Content] Will cache:%s", results["text"])
-                    hash128 = cityhash.CityHash128(f"{text}{target_language}")
-                    need_cache_objs[hash128] = Translated_Content(
-                        hash=str(hash128),
-                        original_content=text,
-                        translated_language=target_language,
-                        translated_content=results["text"],
-                        tokens=results.get("tokens", 0),
-                        characters=results.get("characters", 0),
-                    )
-
-                element.string.replace_with(results.get("text", text))
-            else:
-                logging.info("[Content] Use db cache:%s", text)
-                element.string.replace_with(cached.get("text"))
-    except Exception as e:
-        logging.error(f"content_translate: {str(e)}")
-
-    return str(soup), total_tokens, total_characters, need_cache_objs
 
 
 def chunk_translate(

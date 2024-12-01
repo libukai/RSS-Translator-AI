@@ -26,7 +26,7 @@ class OpenRouterAITranslator(OpenAIInterface):
                 res = client.chat.completions.create(
                     # NOTE: 增加调用时的客户端标识
                     extra_headers={
-                        "HTTP-Referer": "https://news.10k.xyz",
+                        "HTTP-Referer": "https://trans.10k.xyz",
                         "X-Title": "RSS-Translator",
                     },
                     model=self.model,
@@ -63,8 +63,20 @@ class OpenRouterAITranslator(OpenAIInterface):
             if user_prompt:
                 system_prompt += f"\n\n{user_prompt}"
 
-            prompt_title = "文章的标题：" + translate_title
-            prompt_text = "段落的内容：" + text
+            # 根据 text_type 构建不同的 messages
+            if text_type == "title":
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": text},
+                ]
+            else:
+                prompt_title = "文章的标题：" + translate_title
+                prompt_text = "段落的内容：" + text
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt_title},
+                    {"role": "user", "content": prompt_text},
+                ]
 
             res = client.chat.completions.create(
                 extra_headers={
@@ -72,11 +84,7 @@ class OpenRouterAITranslator(OpenAIInterface):
                     "X-Title": "RSS-Translator",
                 },
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt_title},
-                    {"role": "user", "content": prompt_text},
-                ],
+                messages=messages,
                 temperature=self.temperature,
                 top_p=self.top_p,
                 frequency_penalty=self.frequency_penalty,

@@ -1,8 +1,11 @@
 from django import forms
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
-from .models import O_Feed, T_Feed
+
 from utils.modelAdmin_utils import get_translator_and_summary_choices
+
+from .models import O_Feed, T_Feed
+
 
 class O_FeedForm(forms.ModelForm):
     # 自定义字段，使用ChoiceField生成下拉菜单
@@ -32,9 +35,15 @@ class O_FeedForm(forms.ModelForm):
 
     def _set_initial_values(self, instance):
         if instance.content_type and instance.object_id:
-            self.fields["translator"].initial = f"{instance.content_type.id}:{instance.object_id}"
+            self.fields[
+                "translator"
+            ].initial = f"{instance.content_type.id}:{instance.object_id}"
         if instance.content_type_summary and instance.object_id_summary:
-            self.fields["summary_engine"].initial = f"{instance.content_type_summary.id}:{instance.object_id_summary}"
+            self.fields[
+                "summary_engine"
+            ].initial = (
+                f"{instance.content_type_summary.id}:{instance.object_id_summary}"
+            )
 
     class Meta:
         model = O_Feed
@@ -48,14 +57,17 @@ class O_FeedForm(forms.ModelForm):
             "summary_detail",
             "additional_prompt",
             "fetch_article",
-            "quality",
+            # NOTE: 暂时不使用质量选项
+            # "quality",
             "name",
             "category",
         ]
 
     def _process_translator(self, instance):
         if self.cleaned_data["translator"]:
-            content_type_id, object_id = map(int, self.cleaned_data["translator"].split(":"))
+            content_type_id, object_id = map(
+                int, self.cleaned_data["translator"].split(":")
+            )
             instance.content_type_id = content_type_id
             instance.object_id = object_id
         else:
@@ -64,7 +76,9 @@ class O_FeedForm(forms.ModelForm):
 
     def _process_summary_engine(self, instance):
         if self.cleaned_data["summary_engine"]:
-            content_type_summary_id, object_id_summary = map(int, self.cleaned_data["summary_engine"].split(":"))
+            content_type_summary_id, object_id_summary = map(
+                int, self.cleaned_data["summary_engine"].split(":")
+            )
             instance.content_type_summary_id = content_type_summary_id
             instance.object_id_summary = object_id_summary
         else:
@@ -81,8 +95,9 @@ class O_FeedForm(forms.ModelForm):
 
         if commit:
             instance.save()
-        
+
         return instance
+
 
 class T_FeedForm(forms.ModelForm):
     class Meta:
