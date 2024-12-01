@@ -1,47 +1,52 @@
+import json
 import logging
 import os
-import json
 
 from django.conf import settings
-from django.http import HttpResponse, StreamingHttpResponse, JsonResponse
-from django.utils.encoding import smart_str
-from django.views.decorators.cache import cache_page
-from django.views.decorators.http import condition
-from .models import T_Feed, O_Feed
-from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from opyml import OPML
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.shortcuts import redirect
+from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import cache_page
+from django.views.decorators.http import condition
+from opyml import OPML
 
-from utils.feed_action import merge_all_atom, check_file_path
+from utils.feed_action import check_file_path, merge_all_atom
+
+from .models import O_Feed, T_Feed
+
 
 def import_opml(request):
-    if request.method == 'POST':
-        opml_file = request.FILES.get('opml_file')
+    if request.method == "POST":
+        opml_file = request.FILES.get("opml_file")
         if opml_file and isinstance(opml_file, InMemoryUploadedFile):
             try:
-                opml_content = opml_file.read().decode('utf-8')
+                opml_content = opml_file.read().decode("utf-8")
                 opml = OPML.from_xml(opml_content)
-                
+
                 for outline in opml.body.outlines:
                     category = outline.text
-                    #category, _ = Category.objects.get_or_create(name=category_name)
-                    
+                    # category, _ = Category.objects.get_or_create(name=category_name)
+
                     for feed in outline.outlines:
                         O_Feed.objects.create(
                             name=feed.title or feed.text,
                             feed_url=feed.xml_url,
-                            category=category
+                            category=category,
                         )
-                
+
                 messages.success(request, _("OPML file imported successfully."))
             except Exception as e:
-                messages.error(request, _("Error importing OPML file: {}").format(str(e)))
+                messages.error(
+                    request, _("Error importing OPML file: {}").format(str(e))
+                )
         else:
             messages.error(request, _("Please upload a valid OPML file."))
-    
-    return redirect('admin:core_o_feed_changelist')
+
+    return redirect("admin:core_o_feed_changelist")
+
 
 def get_modified(request, feed_sid):
     try:
@@ -73,7 +78,7 @@ def rss(request, feed_sid):
     # Sanitize the feed_sid to prevent path traversal attacks
     feed_sid = smart_str(feed_sid)
 
-    #feed_file_path = os.path.join(settings.DATA_FOLDER, "feeds", f"{feed_sid}.xml")
+    # feed_file_path = os.path.join(settings.DATA_FOLDER, "feeds", f"{feed_sid}.xml")
     base_path = os.path.join(settings.DATA_FOLDER, "feeds")
     feed_file_path = check_file_path(base_path=base_path, filename=f"{feed_sid}.xml")
     # Check if the file exists and if not, raise a 404 error
@@ -152,7 +157,7 @@ def all(request, name):
         feed_file_paths = get_feed_file_paths(feeds)
         merge_all_atom(feed_file_paths, "all_t")
         base_path = os.path.join(settings.DATA_FOLDER, "feeds")
-        #merge_file_path = os.path.join(settings.DATA_FOLDER, "feeds", "all_t.xml")
+        # merge_file_path = os.path.join(settings.DATA_FOLDER, "feeds", "all_t.xml")
         merge_file_path = check_file_path(base_path, "all_t.xml")
         response = StreamingHttpResponse(
             file_iterator(merge_file_path), content_type="application/xml"
@@ -183,9 +188,9 @@ def category(request, category: str):
         feed_file_paths = get_feed_file_paths(feeds)
         merge_all_atom(feed_file_paths, category)
         base_path = os.path.join(settings.DATA_FOLDER, "feeds")
-        #merge_file_path = os.path.join(settings.DATA_FOLDER, "feeds", f"{category}.xml")
+        # merge_file_path = os.path.join(settings.DATA_FOLDER, "feeds", f"{category}.xml")
         merge_file_path = check_file_path(base_path, f"{category}.xml")
-        response = StreamingHttpResponse( 
+        response = StreamingHttpResponse(
             file_iterator(merge_file_path), content_type="application/xml"
         )
         response["Content-Disposition"] = f"inline; filename={category}.xml"
