@@ -13,7 +13,12 @@ class TranslatorEngine(models.Model):
     is_ai = models.BooleanField(default=False, editable=False)
 
     def translate(
-        self, text: str, target_language: str, source_language: str = "auto", **kwargs
+        self,
+        text: str,
+        target_language: str,
+        translate_title: str,
+        source_language: str = "auto",
+        **kwargs,
     ) -> dict:
         raise NotImplementedError(
             "subclasses of TranslatorEngine must provide a translate() method"
@@ -141,6 +146,7 @@ class OpenAIInterface(TranslatorEngine):
         self,
         text: str,
         target_language: str,
+        translate_title: str,
         system_prompt: str = None,
         user_prompt: str = None,
         text_type: str = "title",
@@ -159,15 +165,19 @@ class OpenAIInterface(TranslatorEngine):
             if user_prompt:
                 system_prompt += f"\n\n{user_prompt}"
 
+            prompt_title = "文章的标题：" + translate_title
+            prompt_text = "段落的内容：" + text
+
             res = client.chat.completions.create(
                 extra_headers={
                     "HTTP-Referer": "https://www.rsstranslator.com",
-                    "X-Title": "RSS Translator"
+                    "X-Title": "RSS Translator",
                 },
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text},
+                    {"role": "user", "content": prompt_title},
+                    {"role": "user", "content": prompt_text},
                 ],
                 temperature=self.temperature,
                 top_p=self.top_p,

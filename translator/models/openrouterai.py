@@ -44,6 +44,7 @@ class OpenRouterAITranslator(OpenAIInterface):
         self,
         text: str,
         target_language: str,
+        translate_title: str,
         system_prompt: str = None,
         user_prompt: str = None,
         text_type: str = "title",
@@ -62,6 +63,9 @@ class OpenRouterAITranslator(OpenAIInterface):
             if user_prompt:
                 system_prompt += f"\n\n{user_prompt}"
 
+            prompt_title = "文章的标题：" + translate_title
+            prompt_text = "段落的内容：" + text
+
             res = client.chat.completions.create(
                 extra_headers={
                     "HTTP-Referer": "https://news.10k.xyz",
@@ -70,7 +74,8 @@ class OpenRouterAITranslator(OpenAIInterface):
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text},
+                    {"role": "user", "content": prompt_title},
+                    {"role": "user", "content": prompt_text},
                 ],
                 temperature=self.temperature,
                 top_p=self.top_p,

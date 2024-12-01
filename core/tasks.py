@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from time import mktime
@@ -265,7 +266,7 @@ def translate_feed(
                 cached = Translated_Content.is_translated(
                     title, target_language
                 )  # check cache db
-                translated_text = ""
+                translated_title = ""
                 if not cached:
                     max_retries = 3
                     for attempt in range(max_retries):
@@ -275,38 +276,38 @@ def translate_feed(
                             source_language=source_language,
                             text_type="title",
                         )
-                        translated_text = results.get("text", "")
-                        if translated_text:
+                        translated_title = results.get("text", "")
+                        if translated_title:
                             break
                         logging.warning(
                             f"Empty translation for title, retrying (attempt {attempt + 1}/{max_retries})"
                         )
 
-                    if not translated_text:
-                        translated_text = (
+                    if not translated_title:
+                        translated_title = (
                             title  # Fallback to original title if all retries fail
                         )
 
                     total_tokens += results.get("tokens", 0)
                     translated_characters += len(title)
-                    if title and translated_text:
-                        logging.info("[Title] Will cache:%s", translated_text)
+                    if title and translated_title:
+                        logging.info("[Title] Will cache:%s", translated_title)
                         hash128 = cityhash.CityHash128(f"{title}{target_language}")
                         need_cache_objs[hash128] = Translated_Content(
                             hash=str(hash128),
                             original_content=title,
                             translated_language=target_language,
-                            translated_content=translated_text,
+                            translated_content=translated_title,
                             tokens=results.get("tokens", 0),
                             characters=results.get("characters", 0),
                         )
                 else:
                     logging.info("[Title] Use db cache:%s", cached["text"])
-                    translated_text = cached["text"]
+                    translated_title = cached["text"]
 
                 entry["title"] = text_handler.set_translation_display(
                     original=title,
-                    translation=translated_text,
+                    translation=translated_title,
                     translation_display=translation_display,
                     seprator=" || ",
                 )
@@ -332,11 +333,34 @@ def translate_feed(
                 )
 
                 if content:
+                    max_retries = 3
+                    for attempt in range(max_retries):
+                        translated_summary, tokens, characters, need_cache = (
+                            content_translate(
+                                content,
+                                target_language,
+                                translate_engine,
+                                translate_title,
+                                quality,
+                                source_language,
+                            )
+                        )
+                        if translated_summary:
+                            break
+                        logging.warning(
+                            f"Empty translation for content, retrying (attempt {attempt + 1}/{max_retries})"
+                        )
 
-                    # NOTE: 调整翻译用函数，调整为 AI 翻译版本
-                    translated_summary, tokens, characters, need_cache = (
-                        chunk_translate(content, target_language, translate_engine)
-                    )
+                    if not translated_summary:
+                        translated_summary = (
+                            content  # Fallback to original content if all retries fail
+                        )
+
+                    if quality:
+                        translation = mistune.html(translated_summary)
+                    else:
+                        translation = translated_summary
+
                     total_tokens += tokens
                     translated_characters += characters
 
@@ -344,7 +368,8 @@ def translate_feed(
 
                     text = text_handler.set_translation_display(
                         original=content,
-                        translation=mistune.html(translated_summary),
+                        # NOTE: 将翻译得到的 Markdown 转换为 HTML
+                        translation=translation,
                         translation_display=translation_display,
                         seprator="<br />---------------<br />",
                     )
@@ -425,7 +450,46 @@ def content_translate(
     original_content: str,
     target_language: str,
     engine: TranslatorEngine,
+    translate_title: str,
     quality: bool = False,
+    source_language: str = "auto",
+) -> tuple[str, int, int, dict]:
+    """Translate content using either chunk or tag based translation.
+
+    Returns:
+        tuple: (translated_content, total_tokens, total_characters, cache_objects)
+    """
+    try:
+        logging.info(
+            "Starting content translation: mode=%s, language=%s",
+            "chunk" if quality else "tag",
+            target_language,
+        )
+
+        if quality:
+            return chunk_translate(
+                original_content=original_content,
+                target_language=target_language,
+                engine=engine,
+                source_language=source_language,
+                translate_title=translate_title,
+            )
+        else:
+            return tag_translate(
+                original_content=original_content,
+                target_language=target_language,
+                engine=engine,
+                source_language=source_language,
+            )
+    except Exception as e:
+        logging.error(f"Content translation failed: {str(e)}")
+        return "", 0, 0, {}
+
+
+def tag_translate(
+    original_content: str,
+    target_language: str,
+    engine: TranslatorEngine,
     source_language: str = "auto",
 ):
     total_tokens = 0
@@ -434,13 +498,11 @@ def content_translate(
     soup = BeautifulSoup(original_content, "lxml")
 
     try:
-        if quality:
-            soup = BeautifulSoup(text_handler.unwrap_tags(soup), "lxml")
+        soup = BeautifulSoup(text_handler.unwrap_tags(soup), "lxml")
 
         for element in soup.find_all(string=True):
             if text_handler.should_skip(element):
                 continue
-            #  TODO: 如果文字长度大于最大长度，就分段翻译，需要用chunk_translate
             text = element.get_text()
 
             logging.info("[Content] Translate: %s...", text)
@@ -476,6 +538,65 @@ def content_translate(
         logging.error(f"content_translate: {str(e)}")
 
     return str(soup), total_tokens, total_characters, need_cache_objs
+
+
+def chunk_translate(
+    original_content: str,
+    target_language: str,
+    engine: TranslatorEngine,
+    translate_title: str,
+    source_language: str = "auto",
+):
+    logging.info(
+        "Call chunk_translate: %s(%s items)", target_language, len(original_content)
+    )
+    split_chunks: dict = text_handler.content_split(original_content)
+    grouped_chunks: list = text_handler.group_chunks(
+        split_chunks=split_chunks,
+        max_size=engine.max_size(),
+        group_by="tokens",
+    )
+    translated_content = []
+    total_tokens = 0
+    total_characters = 0
+    need_cache_objs: dict = {}
+    for chunk in grouped_chunks:
+        if not chunk:
+            continue
+        logging.info("Translate chunk: %s", chunk)
+        cached = Translated_Content.is_translated(chunk, target_language)
+        if not cached:
+            results = engine.translate(
+                chunk,
+                target_language=target_language,
+                text_type="content",
+                source_language=source_language,
+                translate_title=translate_title,
+            )
+            results_content = re.sub("^##\s+", "", results["text"])
+            translated_content.append(results_content if results else chunk)
+            total_tokens += results.get("tokens", 0)
+            total_characters += len(chunk)
+
+            if chunk and results["text"]:
+                logging.info("Save to cache:%s", results_content)
+                hash128 = cityhash.CityHash128(f"{chunk}{target_language}")
+                need_cache_objs[hash128] = Translated_Content(
+                    hash=str(hash128),
+                    original_content=chunk,
+                    translated_language=target_language,
+                    translated_content=results_content,
+                    tokens=results.get("tokens", 0),
+                    characters=results.get("characters", 0),
+                )
+        else:
+            translated_content.append(cached["text"])
+    return (
+        str("\n\n".join(translated_content)),
+        total_tokens,
+        total_characters,
+        need_cache_objs,
+    )
 
 
 def content_summarize(
@@ -559,55 +680,3 @@ def content_summarize(
         logging.error(f"content_summarize: {str(e)}")
 
     return final_summary, total_tokens, need_cache_objs
-
-
-def chunk_translate(
-    original_content: str, target_language: str, translate_engine: TranslatorEngine
-):
-    logging.info(
-        "Call chunk_translate: %s(%s items)", target_language, len(original_content)
-    )
-    # NOTE: 在 text_handler 中调整为 AI 翻译版本
-    split_chunks: dict = text_handler.content_split(original_content)
-    grouped_chunks: list = text_handler.group_chunks(
-        split_chunks=split_chunks,
-        max_size=translate_engine.max_size(),
-        group_by="tokens",
-    )
-    translated_content = []
-    total_tokens = 0
-    total_characters = 0
-    need_cache_objs: dict = {}
-    for chunk in grouped_chunks:
-        if not chunk:
-            continue
-        logging.info("Translate chunk: %s", chunk)
-        cached = Translated_Content.is_translated(chunk, target_language)
-        if not cached:
-            results = translate_engine.translate(
-                chunk, target_language=target_language, text_type="content"
-            )
-            results_content = re.sub("^##\s+", "", results["text"])
-            translated_content.append(results_content if results else chunk)
-            total_tokens += results.get("tokens", 0)
-            total_characters += len(chunk)
-
-            if chunk and results["text"]:
-                logging.info("Save to cache:%s", results_content)
-                hash128 = cityhash.CityHash128(f"{chunk}{target_language}")
-                need_cache_objs[hash128] = Translated_Content(
-                    hash=str(hash128),
-                    original_content=chunk,
-                    translated_language=target_language,
-                    translated_content=results_content,
-                    tokens=results.get("tokens", 0),
-                    characters=results.get("characters", 0),
-                )
-        else:
-            translated_content.append(cached["text"])
-    return (
-        "\n\n".join(translated_content),
-        total_tokens,
-        total_characters,
-        need_cache_objs,
-    )
