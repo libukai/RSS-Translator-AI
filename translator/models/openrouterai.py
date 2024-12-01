@@ -45,9 +45,9 @@ class OpenRouterAITranslator(OpenAIInterface):
         text: str,
         target_language: str,
         translate_title: str,
+        text_type: str = "title",
         system_prompt: str = None,
         user_prompt: str = None,
-        text_type: str = "title",
     ) -> dict:
         logging.info(">>> Translate [%s]: %s", target_language, text)
         client = self._init()

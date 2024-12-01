@@ -273,7 +273,7 @@ def translate_feed(
                         results = translate_engine.translate(
                             title,
                             target_language=target_language,
-                            source_language=source_language,
+                            translate_title=title,
                             text_type="title",
                         )
                         translated_title = results.get("text", "")
@@ -340,7 +340,7 @@ def translate_feed(
                                 content,
                                 target_language,
                                 translate_engine,
-                                translate_title,
+                                translated_title,
                                 quality,
                                 source_language,
                             )
@@ -380,7 +380,7 @@ def translate_feed(
                     need_cache_objs = {}
 
             if summary_engine and summary:
-                if summary_engine == None:
+                if not summary_engine:
                     logging.warning("No Summarize engine")
                     continue
                 original_content = entry.get("content")
@@ -471,7 +471,6 @@ def content_translate(
                 original_content=original_content,
                 target_language=target_language,
                 engine=engine,
-                source_language=source_language,
                 translate_title=translate_title,
             )
         else:
@@ -545,7 +544,6 @@ def chunk_translate(
     target_language: str,
     engine: TranslatorEngine,
     translate_title: str,
-    source_language: str = "auto",
 ):
     logging.info(
         "Call chunk_translate: %s(%s items)", target_language, len(original_content)
@@ -569,9 +567,8 @@ def chunk_translate(
             results = engine.translate(
                 chunk,
                 target_language=target_language,
-                text_type="content",
-                source_language=source_language,
                 translate_title=translate_title,
+                text_type="content",
             )
             results_content = re.sub("^##\s+", "", results["text"])
             translated_content.append(results_content if results else chunk)
