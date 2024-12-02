@@ -503,7 +503,7 @@ def chunk_translate(
                 translate_title=translate_title,
                 text_type="content",
             )
-            results_content = re.sub("^##\s+", "", results["text"])
+            results_content = re.sub(r"^##\s+", "", results["text"])
             translated_content.append(results_content if results else chunk)
             total_tokens += results.get("tokens", 0)
             total_characters += len(chunk)
