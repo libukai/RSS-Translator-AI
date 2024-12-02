@@ -6,6 +6,11 @@
 
 | [English](https://rsstranslator.com/en) | [Demo](https://rsstranslator.com/demo/) | [Telegram交流群](https://t.me/rsstranslator) | [开发进度](https://github.com/orgs/rss-translator/projects/2/views/1) | [收支表](https://versun.notion.site/RSS-10a92896fa998028a162c57bfb0ac3dc)
 
+> 在原版基础上，本 Fork 做了以下改进：  
+> 1. 改进了使用 OpenAI 兼容翻译引擎的翻译效果
+> 2. 将依赖管理从 PIP 迁移至 Poetry
+> 3. 修正了部分不影响运行的报错
+
 ---
 
 ### 文档：[rsstranslator.com](https://rsstranslator.com)
